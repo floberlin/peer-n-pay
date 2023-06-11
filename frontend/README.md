@@ -1,36 +1,79 @@
-# TypeScript Example
+# dApp Starter Boilerplate
 
-<p>
-  <!-- iOS -->
-  <img alt="Supports Expo iOS" longdesc="Supports Expo iOS" src="https://img.shields.io/badge/iOS-4630EB.svg?style=flat-square&logo=APPLE&labelColor=999999&logoColor=fff" />
-  <!-- Android -->
-  <img alt="Supports Expo Android" longdesc="Supports Expo Android" src="https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff" />
-  <!-- Web -->
-  <img alt="Supports Expo Web" longdesc="Supports Expo Web" src="https://img.shields.io/badge/web-4630EB.svg?style=flat-square&logo=GOOGLE-CHROME&labelColor=4285F4&logoColor=fff" />
-</p>
+A dApp starter kit template to quick start a dapp project with Next.js + Tailwind CSS + Ethers + wagmi + RainbowKit.
 
-```sh
-npx create-react-native-app -t with-typescript
+Other tools/components included: Headless UI, Heroicons, Autoprefixer, Sass, PostCSS, ESLint, Prettier.
+
+Live preview for this repo: https://dapp-starter.aris.ac
+
+## Getting Started
+
+```bash
+# Install Dependencies
+yarn
+
+# Run the development server
+yarn dev
 ```
 
-TypeScript is a superset of JavaScript which gives you static types and powerful tooling in Visual Studio Code including autocompletion and useful inline warnings for type errors.
+### ENV
 
-## 🚀 How to use
+```bash
+# Copy ENV File
+cp .env.example .env.local
+```
 
-#### Creating a new project
+### Configs
 
-- Install the CLI: `npm i -g expo-cli`
-- Create a project: `npx create-react-native-app -t with-typescript`
-- `cd` into the project
+- `src/appConfig.ts`: app name, title, SEO etc.
+- `src/pages/_app.tsx`: chains, providers, wallet connectors
 
-### Adding TypeScript to existing projects
+### Scripts
 
-- Create a blank TypeScript config: `touch tsconfig.json`
-- Run `yarn start` or `npm run start` to automatically configure TypeScript
-- Rename files to TypeScript, `.tsx` for React components and `.ts` for plain typescript files
+**Next.js**
 
-> 💡 You can disable the TypeScript setup in Expo CLI with the environment variable `EXPO_NO_TYPESCRIPT_SETUP=1 expo start`
+```bash
+# Build
+yarn build
 
-## 📝 Notes
+# Start server with build files
+yarn start
+```
 
-- [Expo TypeScript guide](https://docs.expo.dev/versions/latest/guides/typescript/)
+**Prettier**
+
+```bash
+# Use Prettier to do Format Check for files under ./src
+yarn fc
+
+# Use Prettier to do Format Fix for files under ./src
+yarn ff
+```
+
+**Contract Types**
+
+```bash
+# Generate contract types from src/contracts/*.json
+yarn compile-contract-types
+```
+
+### Deployment
+
+The easiest way to deploy your Next.js app is to use [Vercel](https://vercel.com/), by the creators of Next.js.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## More
+
+Learn about components of this kit is using:
+
+- [Next.js](https://nextjs.org/) - React Framework by Vercel
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS Framework
+- [Ethers.js](https://github.com/ethers-io/ethers.js/) - Compact library for interacting with Ethereum.
+- [wagmi](https://wagmi.sh/) - React Hooks for Ethereum
+- [RainbowKit](https://rainbowkit.com/) - React library for wallet connections with dApp.
+- [Headless UI](https://headlessui.dev/) - Unstyled, fully accessible UI components
+
+## License
+
+This app is open-source and licensed under the MIT license. For more details, check the [License file](LICENSE).
