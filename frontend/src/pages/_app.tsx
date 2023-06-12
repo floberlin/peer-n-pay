@@ -8,13 +8,7 @@ import { useState, useEffect } from 'react'
 import HeadGlobal from 'components/HeadGlobal'
 import { connectorsForWallets, RainbowKitProvider, lightTheme, darkTheme, getDefaultWallets } from '@rainbow-me/rainbowkit'
 import {
-  injectedWallet,
-  metaMaskWallet,
-  braveWallet,
-  coinbaseWallet,
-  walletConnectWallet,
   ledgerWallet,
-  rainbowWallet,
   argentWallet,
   trustWallet,
 } from '@rainbow-me/rainbowkit/wallets'

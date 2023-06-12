@@ -1,4 +1,17 @@
-import { App, Page, Navbar, Link, BlockTitle, Block, Tabbar } from 'konsta/react'
+import {
+  App,
+  Page,
+  Navbar,
+  Link,
+  BlockTitle,
+  Block,
+  Tabbar,
+  Card,
+  List,
+  ListInput,
+  Button,
+  NavbarBackLink,
+} from 'konsta/react'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 
@@ -21,20 +34,41 @@ export default function Chat() {
   return (
     <App theme="ios">
       <Page>
-        <Navbar title="Chat" large transparent centerTitle />
+        <Navbar
+          title="Chat"
+          large
+          transparent
+          centerTitle
+          left={<NavbarBackLink text="" onClick={() => router.push("/")} />}
+        />
         <BlockTitle large>{router.query.chatID}</BlockTitle>
 
         <Block>
           {messages.map((message, index) => (
-            <div key={index} className={message.type === 'sent' ? 'sent' : 'received'}>
-              <p>{message.text}</p>
-            </div>
+            <Card raised key={index}>
+              {message.text}
+            </Card>
           ))}
-          <div>
-            <input type="text" value={message} onChange={e => setMessage(e.target.value)} />
-            <button onClick={sendMessage}>Send</button>
-          </div>
         </Block>
+        <Block>
+          <List strongIos insetIos>
+            <ListInput
+              outline
+              label="Write your Message"
+              floatingLabel
+              type="textarea"
+              placeholder=""
+              value={message}
+              onChange={e => setMessage((e as any).target.value)}
+            />
+            <br />
+
+            <Button onClick={sendMessage}>Send Message</Button>
+            <br />
+            <Button onClick={sendMessage}>Send Ether</Button>
+          </List>
+        </Block>
+
         <Tabbar className="fixed bottom-0 left-0"></Tabbar>
       </Page>
     </App>
