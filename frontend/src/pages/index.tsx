@@ -1,23 +1,38 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Magic } from 'magic-sdk'
-import { App, Page, Navbar, Button, Block, BlockTitle, List, ListItem, Toggle, Fab } from 'konsta/react'
+import { App, Page, Navbar, Button, Block, BlockTitle, List, ListItem, Toggle, Fab, ListInput } from 'konsta/react'
 import router from 'next/router'
 import * as PushAPI from '@pushprotocol/restapi'
 import { createWalletClient, custom } from 'viem'
-import { mainnet, optimism, optimismGoerli } from 'viem/chains'
+import { mainnet, optimism, optimismGoerli, sepolia } from 'viem/chains'
 import { PlusIcon } from '@heroicons/react/24/solid'
+import { Input } from 'postcss'
 
 function Main() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [magic, setMagic] = useState(null)
   const [address, setAddress] = useState(null)
 
+  const [recipient, setRecipient] = useState('')
+  const [recipients, setRecipients] = useState([
+    { rec: 'vitalik.eth' },
+    { rec: 'tanrikulu.eth' },
+    { rec: '0xd7bF9A6e3b1702C14cF4f2638688a772f97d150f' },
+    { rec: '0xd7bF9A6e3b1702C14cF4f2638688a772f97d150f' },
+    { rec: '0x9C838949427022610ab4D4fbe6EDC9e6dD83b2D8' },
+  ])
+
+  function newRecipient() {
+    setRecipients([...recipients, { rec: recipient }])
+    setRecipient('')
+  }
+
   async function login() {
     setIsLoggingIn(true)
 
     const customNodeOptions = {
-      rpcUrl: 'https://goerli.optimism.io',
-      chainId: 420,
+      rpcUrl: 'https://rpc2.sepolia.org/', // Sepolia Testnet RPC URL
+      chainId: 11155111, // Sepolia Testnet Chain id
 
       // rpcUrl: 'https://filecoin.chainup.net/rpc/v1', // FileCoin testnet
       // chainId: 314, // FileCoin testnet
@@ -31,7 +46,7 @@ function Main() {
     const accounts = await magic?.wallet?.connectWithUI()
     setAddress(accounts?.[0])
     const client = createWalletClient({
-      chain: optimismGoerli,
+      chain: sepolia,
       transport: custom(magic.rpcProvider),
     }) //getSigner
 
@@ -58,22 +73,39 @@ function Main() {
             <BlockTitle>{address}</BlockTitle>
             <BlockTitle large>Chats</BlockTitle>
             <List strong inset>
-              <ListItem href="/chats/bla.eth" title="bla.eth" onClick={() => router.push('/chats/bla.eth')} />
-              <ListItem href="/chats/ekjfnewng.eth" title="12345.eth" onClick={() => router.push('/chats/12345.eth')} />
-              <ListItem
-                href="/chats/0xdD3a4b2dB6fAc1917606e8C527D3293a0D33CE53"
-                title="0xdD3a4b2dB6fAc1917606e8C527D3293a0D33CE53"
-                onClick={() => router.push('/chats/0xdD3a4b2dB6fAc1917606e8C527D3293a0D33CE53')}
-              />
+              {recipients.map((recipient, index) => (
+                <ListItem
+                  href={`/chats/${address}/${recipient.rec}`}
+                  key={index}
+                  title={recipient.rec as string}
+                  onClick={() => router.push(`/chats/${address}/${recipient.rec}`)} //! workaround for ios native routing
+                />
+              ))}
             </List>
-            <Fab className="fixed z-20 right-4-safe bottom-4-safe" icon={<PlusIcon />} />
+            <Block>
+              <ListInput
+                outline
+                label="Add new recipient"
+                floatingLabel
+                type="text"
+                value={recipient}
+                onChange={e => setRecipient((e as any).target.value)}
+              />
+              <Fab
+                className="fixed left-1/2 z-20 -translate-x-1/2 transform bottom-4-safe"
+                icon={<PlusIcon />}
+                onClick={() => newRecipient()}
+              />
+            </Block>
           </>
         ) : (
           <div className="grid grid-cols-3">
             <div>
-              <Button large rounded onClick={login}>
-                Log In
-              </Button>
+              <Block className="mt-28">
+                <Button large rounded onClick={login} className="mb-28">
+                  Log In
+                </Button>
+              </Block>
             </div>
           </div>
         )}
