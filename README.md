@@ -39,4 +39,4 @@ npx cap sync android
 npx cap open android
 ```
 
-Deployed to web: [App]("https://peer-n-pay.vercel.app/")
+Deployed to web: https://peer-n-pay.vercel.app/
