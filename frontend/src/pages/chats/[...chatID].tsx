@@ -66,6 +66,8 @@ export default function Chat() {
   }
 
   async function sendEther() {
+
+    console.log("test2", chatID?.[1])
     const customNodeOptions = {
       rpcUrl: 'https://rpc2.sepolia.org/', // Sepolia Testnet RPC URL
       chainId: 11155111, // Sepolia Testnet Chain id
@@ -81,19 +83,18 @@ export default function Chat() {
     const accounts = await magic.wallet.connectWithUI()
 
     // ⭐️ After user is successfully authenticated
-    let destination
-    if (chatID?.[1].includes('.eth')) {
-      //resolve the ENS name to an address
-      destination = await web3.eth.ens.getAddress(chatID?.[1] as string)
-    } else {
-      destination = chatID?.[1]
-    }
+    const destination = chatID?.[1].includes('.eth')
+      ? await provider.resolveName(chatID?.[1])
+      : chatID?.[1]
+
+      console.log("test", destination)
+
     const amount = Number(message)
 
-    // Submit transaction to the blockchain
+    //Submit transaction to the blockchain
     const tx = web3.eth.sendTransaction({
       from: accounts[0],
-      to: destination,
+      to: destination as any,
       value: amount * 1e18,
     })
 
@@ -124,7 +125,9 @@ export default function Chat() {
           centerTitle
           left={<NavbarBackLink text="" onClick={() => router.push('/')} />}
         />
-        <BlockTitle large className='pb-4'>{chatID?.[1]}</BlockTitle>
+        <BlockTitle large className="pb-4">
+          {chatID?.[1]}
+        </BlockTitle>
 
         {/* <Block> */}
         {messages.map((message, index) => (
@@ -147,7 +150,7 @@ export default function Chat() {
             ) : (
               <Chip>Me</Chip>
             )}
-            <p className="pt-4">{" "}{message.text}</p>
+            <p className="pt-4"> {message.text}</p>
           </Card>
         ))}
         {/* </Block> */}
