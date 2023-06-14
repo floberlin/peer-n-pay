@@ -66,12 +66,9 @@ export default function Chat() {
   }
 
   async function sendEther() {
-
-    console.log("test2", chatID?.[1])
     const customNodeOptions = {
       rpcUrl: 'https://rpc2.sepolia.org/', // Sepolia Testnet RPC URL
       chainId: 11155111, // Sepolia Testnet Chain id
-
       // rpcUrl: 'https://filecoin.chainup.net/rpc/v1', // FileCoin testnet
       // chainId: 314, // FileCoin testnet
     }
@@ -83,11 +80,9 @@ export default function Chat() {
     const accounts = await magic.wallet.connectWithUI()
 
     // ⭐️ After user is successfully authenticated
-    const destination = chatID?.[1].includes('.eth')
-      ? await provider.resolveName(chatID?.[1])
-      : chatID?.[1]
+    const destination = chatID?.[1].includes('.eth') ? await provider.resolveName(chatID?.[1]) : chatID?.[1]
 
-      console.log("test", destination)
+    console.log('test', destination)
 
     const amount = Number(message)
 
@@ -114,7 +109,6 @@ export default function Chat() {
     setMessages([...messages, { type: 'received', text: message }])
   )
 
-  // const { data:balanceWallet } = useBalance(accounts[0]])
   return (
     <App theme="ios">
       <Page>

@@ -53,8 +53,8 @@ function Main() {
     const [address] = await client.getAddresses()
     console.log(address)
 
+    //! Need to figure out how to do the user onboaring stuff and also check weather the user is already registered or not
     // const user = await PushAPI.user.create({ signer: client as any, env: 'staging' as any })
-
     // console.log(user)
   }
 
@@ -70,7 +70,8 @@ function Main() {
         {address ? (
           <>
             <BlockTitle large>Account</BlockTitle>
-            <BlockTitle>{address}</BlockTitle>
+            <BlockTitle>{address}</BlockTitle> 
+            {/* maybe add balance and ENS name/avatar if any is used */}
             <BlockTitle large>Chats</BlockTitle>
             <List strong inset>
               {recipients.map((recipient, index) => (
