@@ -14,7 +14,7 @@ import {
 } from '@rainbow-me/rainbowkit/wallets'
 import { Chain } from '@rainbow-me/rainbowkit'
 import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains'
-import { WagmiConfig, configureChains, createConfig } from 'wagmi'
+import { WagmiConfig, configureChains, createConfig, sepolia } from 'wagmi'
 import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
@@ -38,10 +38,11 @@ export default App
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
+    sepolia
+    // mainnet,
+    // polygon,
+    // optimism,
+    // arbitrum,
   ],
   [publicProvider()]
 );

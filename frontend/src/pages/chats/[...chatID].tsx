@@ -13,14 +13,15 @@ import {
   NavbarBackLink,
   Chip,
 } from 'konsta/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Magic } from 'magic-sdk'
 import Web3 from 'web3'
-import { useBalance } from 'wagmi'
 import { createSocketConnection, EVENTS } from '@pushprotocol/socket'
 import { AvatarResolver, utils as avtUtils } from '@ensdomains/ens-avatar'
 import { StaticJsonRpcProvider } from '@ethersproject/providers'
+import * as PushAPI from '@pushprotocol/restapi'
+import { ethers } from 'ethers'
 
 const provider = new StaticJsonRpcProvider('https://eth.llamarpc.com')
 
@@ -28,15 +29,53 @@ export default function Chat() {
   const [avatar, setAvatar] = useState('https://i.ibb.co/pWV8kfr/Screenshot-2023-06-14-at-00-17-05.png')
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState([
-    { type: 'received', text: 'Hello!' },
-    { type: 'sent', text: 'Hi, how are you?' },
-    { type: 'received', text: 'I am good. How about you?' },
-    { type: 'sent', text: 'I am fine. Thanks for asking!' },
+    // { type: 'received', text: 'Hello!' },
+    // { type: 'sent', text: 'Hi, how are you?' },
+    // { type: 'received', text: 'I am good. How about you?' },
+    // { type: 'sent', text: 'I am fine. Thanks for asking!' },
   ]) // just some dummy messages
 
-  function sendMessage() {
+  async function sendMessage() {
+    // pre-requisite API calls that should be made before
+    // need to get user and through that encryptedPvtKey of the user
+    const customNodeOptions = {
+      rpcUrl: 'https://rpc2.sepolia.org/', // Sepolia Testnet RPC URL
+      chainId: 11155111, // Sepolia Testnet Chain id
+
+      // rpcUrl: 'https://filecoin.chainup.net/rpc/v1', // FileCoin testnet
+      // chainId: 314, // FileCoin testnet
+    }
+    const magic = new Magic('pk_live_36461EAC7CC079EA', {
+      network: customNodeOptions,
+    })
+
+    const magicProvider = await magic.wallet.getProvider()
+
+    const signer = new ethers.providers.Web3Provider(magicProvider).getSigner()
+
+    const user = await PushAPI.user.get({
+      account: `eip155:${chatID?.[0]}`, // Not CAIP-10 format
+    })
+
     setMessages([...messages, { type: 'sent', text: message }])
     setMessage('')
+
+    if (!user?.encryptedPrivateKey) return
+
+    // need to decrypt the encryptedPvtKey to pass in the api using helper function
+    const pgpDecryptedPvtKey = await PushAPI.chat.decryptPGPKey({
+      encryptedPGPPrivateKey: user.encryptedPrivateKey,
+      signer,
+    })
+
+    // actual api
+    const response = await PushAPI.chat.send({
+      messageContent: message,
+      messageType: 'Text', // can be "Text" | "Image" | "File" | "GIF"
+      receiverAddress: 'eip155:0x0F1AAC847B5720DDf01BFa07B7a8Ee641690816d',
+      signer,
+      pgpPrivateKey: pgpDecryptedPvtKey,
+    })
   }
 
   const router = useRouter()
@@ -108,6 +147,58 @@ export default function Chat() {
   pushSDKSocket?.on(EVENTS.CHAT_RECEIVED_MESSAGE, message =>
     setMessages([...messages, { type: 'received', text: message }])
   )
+
+  async function fetchMessages() {
+    // pre-requisite API calls that should be made before
+    // need to get user and through that encryptedPvtKey of the user
+    const user = await PushAPI.user.get({
+      account: `eip155:${chatID?.[0]}`, // Not CAIP-10 format
+    })
+
+    const customNodeOptions = {
+      rpcUrl: 'https://rpc2.sepolia.org/', // Sepolia Testnet RPC URL
+      chainId: 11155111, // Sepolia Testnet Chain id
+    }
+
+    const magic = new Magic('pk_live_36461EAC7CC079EA', {
+      network: customNodeOptions,
+    })
+
+    const magicProvider = await magic.wallet.getProvider()
+
+    const signer = new ethers.providers.Web3Provider(magicProvider).getSigner()
+
+    console.log('user', user)
+
+    if (!user?.encryptedPrivateKey) return
+
+    // need to decrypt the encryptedPvtKey to pass in the api using helper function
+    const pgpDecryptedPvtKey = await PushAPI.chat.decryptPGPKey({
+      encryptedPGPPrivateKey: user.encryptedPrivateKey,
+      signer,
+    })
+
+    // get threadhash, this will fetch the latest conversation hash
+    // you can also use older conversation hash (called link) by iterating over to fetch more historical messages
+    // conversation hash are also called link inside chat messages
+    const conversationHash = await PushAPI.chat.conversationHash({
+      account: `eip155:${chatID?.[0]}`, // Not CAIP-10 format
+      conversationId: 'eip155:0x0F1AAC847B5720DDf01BFa07B7a8Ee641690816d', // receiver's address or chatId of a group
+    })
+
+    // actual api
+    const chatHistory = await PushAPI.chat.history({
+      threadhash: conversationHash.threadHash,
+      account: `eip155:${chatID?.[0]}`, // Not CAIP-10 format
+      limit: 2,
+      toDecrypt: true,
+      pgpPrivateKey: pgpDecryptedPvtKey,
+    })
+  }
+
+  useEffect(() => {
+    fetchMessages()
+  }, [])
 
   return (
     <App theme="ios">

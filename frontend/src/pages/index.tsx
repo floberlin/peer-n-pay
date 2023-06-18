@@ -7,6 +7,8 @@ import { createWalletClient, custom } from 'viem'
 import { mainnet, optimism, optimismGoerli, sepolia } from 'viem/chains'
 import { PlusIcon } from '@heroicons/react/24/solid'
 import { Input } from 'postcss'
+import { ethers } from 'ethers'
+import { ENV } from '@pushprotocol/restapi/src/lib/constants'
 
 function Main() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -53,6 +55,16 @@ function Main() {
     const [address] = await client.getAddresses()
     console.log(address)
 
+    const magicProvider = await magic.wallet.getProvider()
+
+    const signer = new ethers.providers.Web3Provider(magicProvider).getSigner()
+
+    const user = await PushAPI.user.create({
+      env: ENV.STAGING,
+      account: address,
+      signer,
+    })
+
     //! Need to figure out how to do the user onboaring stuff and also check weather the user is already registered or not
     // const user = await PushAPI.user.create({ signer: client as any, env: 'staging' as any })
     // console.log(user)
@@ -70,7 +82,7 @@ function Main() {
         {address ? (
           <>
             <BlockTitle large>Account</BlockTitle>
-            <BlockTitle>{address}</BlockTitle> 
+            <BlockTitle>{address}</BlockTitle>
             {/* maybe add balance and ENS name/avatar if any is used */}
             <BlockTitle large>Chats</BlockTitle>
             <List strong inset>
